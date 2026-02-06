@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <title>Admin Control Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/static/css/theme.css">
+    <link rel="stylesheet" href="/static/css/sidebar.css">
+
+   <style>
+    body{
+        margin:0;
+        font-family:"Segoe UI", Arial;
+        background: var(--bg-main);
+        color: var(--text-main);
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .content{
+        margin-left:260px;
+        padding:28px;
+    }
+
+    h1{
+        font-size:28px;
+        margin-bottom:4px;
+    }
+
+    .subtitle{
+        opacity:.7;
+        margin-bottom:20px;
+        color: var(--text-muted);
+    }
+
+    .tabs{
+        display:flex;
+        gap:12px;
+        margin-bottom:25px;
+    }
+
+    .tab{
+        padding:10px 18px;
+        border-radius:12px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-soft);
+        cursor:pointer;
+        font-weight:600;
+    }
+
+    .tab.active{
+        background: var(--accent);
+        color:white;
+    }
+
+    .panel{display:none;}
+    .panel.active{display:block;}
+
+    .grid{
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+        gap:18px;
+    }
+
+    .card{
+        background: var(--bg-card);
+        border:1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        border-radius:18px;
+        padding:18px;
+    }
+
+    .row{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:12px;
+    }
+
+    input{
+        width:110px;
+        padding:6px;
+        border-radius:8px;
+        border:1px solid var(--border-soft);
+        background: var(--bg-main);
+        color: var(--text-main);
+        text-align:center;
+    }
+
+    .toggle{
+        padding:6px 14px;
+        border-radius:999px;
+        cursor:pointer;
+        font-weight:bold;
+        font-size:13px;
+        user-select:none;
+    }
+
+    .on{
+        background: var(--accent);
+        color:white;
+    }
+
+    .off{
+        background: var(--danger);
+        color:white;
+    }
+
+    button{
+        margin-top:12px;
+        padding:10px 16px;
+        border:none;
+        border-radius:10px;
+        cursor:pointer;
+        background: var(--accent);
+        color:white;
+        font-weight:bold;
+    }
+</style>
+
+    <script>
+function getUserFromToken() {
+    const token = localStorage.getItem("access_token");
+    if (!token) return null;
+
+    try {
+        return JSON.parse(atob(token.split(".")[1]));
+    } catch {
+        return null;
+    }
+}
+
+(function protectAdminPage(){
+    const user = getUserFromToken();
+
+    if (!user) {
+        window.location.href = "/login";
+        return;
+    }
+
+    if (user.role !== "admin") {
+        alert("⛔ Access Denied: Admins only");
+        window.location.href = "/dashboard";
+    }
+})();
+</script>
+</head>
+
+<body>
+
+{% include "sidebar.html" %}
+
+<div class="content">
+    <h1>⚙️ Admin Control Panel</h1>
+    <div class="subtitle">Live system configuration & monitoring</div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="openTab('system')">System</div>
+        <div class="tab" onclick="openTab('alerts')">Alerts</div>
+        <div class="tab" onclick="openTab('zones')">Zones</div>
+        <div class="tab" onclick="openTab('history')">History</div>
+    </div>
+
+    <!-- ================= SYSTEM ================= -->
+    <div id="system" class="panel active">
+        <div class="grid">
+            <div class="card">
+                <h3>Detection Settings</h3>
+                <div class="row"><span>Confidence</span><input id="conf_threshold"></div>
+                <div class="row"><span>FPS</span><input id="det_fps"></div>
+                <div class="row"><span>Max People</span><input id="max_people"></div>
+                <button onclick="saveSystem()">APPLY</button>
+            </div>
+
+            <div class="card">
+                <h3>Alert Toggles</h3>
+                <div class="row"><span>Email</span>
+                    <div id="email_toggle" class="toggle off"
+                         onclick="toggleSys('enable_email_alerts')">OFF</div>
+                </div>
+                <div class="row"><span>SMS</span>
+                    <div id="sms_toggle" class="toggle off"
+                         onclick="toggleSys('enable_sms_alerts')">OFF</div>
+                </div>
+                <div class="row"><span>Webhook</span>
+                    <div id="webhook_toggle" class="toggle off"
+                         onclick="toggleSys('enable_webhook_alerts')">OFF</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ALERTS ================= -->
+    <div id="alerts" class="panel">
+        <div class="grid" id="alertRules"></div>
+    </div>
+
+    <!-- ================= ZONES ================= -->
+    <div id="zones" class="panel">
+        <div class="grid" id="zonesGrid"></div>
+
+        <div class="card">
+            <h3>Add / Update Zone</h3>
+            <div class="row"><span>Zone ID</span><input id="zone_id" value="Camera-1"></div>
+            <div class="row"><span>Capacity</span><input id="zone_capacity" value="200"></div>
+            <div class="row"><span>Warning %</span><input id="zone_warning" value="70"></div>
+            <div class="row"><span>Critical %</span><input id="zone_critical" value="90"></div>
+            <div class="row"><span>Cooldown</span><input id="zone_cooldown" value="300"></div>
+            <button onclick="saveZone()">SAVE ZONE</button>
+        </div>
+    </div>
+
+    <!-- ================= HISTORY ================= -->
+    <div id="history" class="panel">
+        <div class="grid" id="historyData"></div>
+    </div>
+</div>
+
+<script>
+const API="http://localhost:5005/api";
+
+/* ---------- TABS ---------- */
+function openTab(id){
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    document.querySelector(`[onclick="openTab('${id}')"]`).classList.add("active");
+    document.getElementById(id).classList.add("active");
+}
+
+/* ---------- SYSTEM ---------- */
+async function loadSystem(){
+    const r = await fetch(API+"/settings/grouped");
+    const d = await r.json();
+
+    d.data.detection.forEach(s=>{
+        if(s.key==="detection_confidence_threshold") conf_threshold.value=s.value;
+        if(s.key==="detection_fps") det_fps.value=s.value;
+        if(s.key==="max_people_count") max_people.value=s.value;
+    });
+
+    d.data.alerts.forEach(s=>{
+        if(s.key==="enable_email_alerts") setToggle("email",s.value==="true");
+        if(s.key==="enable_sms_alerts") setToggle("sms",s.value==="true");
+        if(s.key==="enable_webhook_alerts") setToggle("webhook",s.value==="true");
+    });
+}
+
+function setToggle(id,state){
+    const el=document.getElementById(id+"_toggle");
+    el.className="toggle "+(state?"on":"off");
+    el.innerText=state?"ON":"OFF";
+    el.dataset.state=state?"true":"false";
+}
+
+async function toggleSys(key){
+    const map={
+        enable_email_alerts:"email",
+        enable_sms_alerts:"sms",
+        enable_webhook_alerts:"webhook"
+    };
+    const el=document.getElementById(map[key]+"_toggle");
+    const newVal = el.dataset.state!=="true";
+
+    await fetch(API+"/settings/"+key,{
+        method:"PUT",
+        headers:{
+            "Content-Type":"application/json",
+            "X-Username":"admin"
+        },
+        body:JSON.stringify({ value:String(newVal) })
+    });
+
+    setToggle(map[key], newVal);
+}
+
+async function saveSystem(){
+    await updateSetting("detection_confidence_threshold", conf_threshold.value);
+    await updateSetting("detection_fps", det_fps.value);
+    await updateSetting("max_people_count", max_people.value);
+    fetch("http://127.0.0.1:5000/bridge/system-settings").catch(()=>{});
+
+
+    alert("✅ System settings applied");
+    loadSystem();
+}
+
+async function updateSetting(key,val){
+    await fetch(API+"/settings/"+key,{
+        method:"PUT",
+        headers:{
+            "Content-Type":"application/json",
+            "X-Username":"admin"
+        },
+        body:JSON.stringify({ value:String(val) })
+    });
+}
+
+/* ---------- ZONES ---------- */
+async function loadZones(){
+    const r=await fetch(API+"/zone-thresholds");
+    const d=await r.json();
+    zonesGrid.innerHTML = d.data.map(z=>`
+        <div class="card">
+            <h3>${z.zone_id}</h3>
+            <div>Capacity: ${z.capacity}</div>
+            <div>Warning: ${z.warning_threshold}%</div>
+            <div>Critical: ${z.critical_threshold}%</div>
+        </div>
+    `).join("") || "<div class='card'>No Zones</div>";
+}
+
+async function saveZone(){
+    const zoneId = zone_id.value.trim() || "Camera-1";
+
+    await fetch(API+"/zone-thresholds/"+zoneId,{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json",
+            "X-Username":"admin"
+        },
+        body:JSON.stringify({
+            capacity:+zone_capacity.value,
+            warning_threshold:+zone_warning.value,
+            critical_threshold:+zone_critical.value,
+            alert_cooldown:+zone_cooldown.value
+        })
+    });
+
+    alert("✅ Zone saved");
+    loadZones();
+}
+
+/* ---------- ALERTS ---------- */
+async function loadAlerts(){
+    const r=await fetch(API+"/alert-rules");
+    const d=await r.json();
+    alertRules.innerHTML=d.data.map(a=>`
+        <div class="card">
+            <b>${a.rule_name}</b>
+            <div class="toggle ${a.is_active?"on":"off"}"
+                 onclick="toggleAlert(${a.id})">
+                 ${a.is_active?"ON":"OFF"}
+            </div>
+        </div>
+    `).join("");
+}
+
+async function toggleAlert(id){
+    await fetch(API+"/alert-rules/"+id+"/toggle",{
+        method:"POST",
+        headers:{ "X-Username":"admin" }
+    });
+    loadAlerts();
+}
+
+/* ---------- HISTORY ---------- */
+async function loadHistory(){
+    const r=await fetch(API+"/settings/history");
+    const d=await r.json();
+    historyData.innerHTML=d.data.map(h=>`
+        <div class="card">
+            <b>${h.setting_type}</b><br>
+            ${h.old_value||""} → ${h.new_value||""}<br>
+            <small>${h.timestamp}</small>
+        </div>
+    `).join("");
+}
+
+/* ---------- INIT ---------- */
+loadSystem();
+loadZones();
+loadAlerts();
+loadHistory();
+</script>
+<script src="/static/js/route-guard.js"></script>
+<script>
+    console.log("Admin route guard running");
+    requireAuth();
+    requireAdmin();
+</script>
+</body>
+</html>
+

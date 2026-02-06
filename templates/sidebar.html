@@ -1,0 +1,43 @@
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="logo">🤖 Smart Crowd AI</div>
+
+    <a href="/dashboard" class="menu-item">📊 Dashboard</a>
+    <a href="/heatmap" class="menu-item">🔥 Heatmap</a>
+
+    <!-- ADMIN ONLY -->
+    <a href="/admin-settings"
+       class="menu-item"
+       id="adminSettingsLink">⚙️ Admin Settings</a>
+
+    <a href="#" class="menu-item">🧭 Zones</a>
+    <a href="#" class="menu-item">🚨 Alerts</a>
+    <a href="#" class="menu-item">📈 Analytics</a>
+
+    <!-- PUSH CONTENT UP -->
+    <div style="flex:1"></div>
+
+    <!-- BOTTOM ACTIONS -->
+    <div class="sidebar-actions" id="sidebarActions">
+        <button class="theme-btn" id="themeToggleBtn" onclick="toggleTheme()">
+            🌗 Toggle Theme
+        </button>
+
+        <button class="logout-btn" onclick="logoutUser()">
+            🚪 Logout
+        </button>
+    </div>
+</div>
+<!-- END SIDEBAR -->
+
+<!-- JS (LOAD ONCE) -->
+<script src="/static/js/auth.js"></script>
+<script>
+    hideAdminMenuIfNeeded();
+
+    /* 🔐 HIDE SIDEBAR ACTIONS IF NOT LOGGED IN */
+    if (!localStorage.getItem("access_token")) {
+        const actions = document.getElementById("sidebarActions");
+        if (actions) actions.style.display = "none";
+    }
+</script>

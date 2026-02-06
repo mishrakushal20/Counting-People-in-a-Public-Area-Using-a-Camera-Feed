@@ -1,0 +1,33 @@
+/* ================= LIGHT THEME (MODERN SAAS) ================= */
+:root{
+    /* BACKGROUNDS */
+    --bg-main: #f3f4f6;          /* page background */
+    --bg-card: #ffffff;         /* cards */
+    --bg-sidebar: #f8fafc;      /* sidebar */
+
+    /* TEXT */
+    --text-main: #0f172a;
+    --text-muted: #475569;
+
+    /* BORDERS & SHADOWS */
+    --border-soft: rgba(15,23,42,0.08);
+    --shadow-soft: 0 6px 18px rgba(15,23,42,0.08);
+
+    /* ACCENTS */
+    --accent: #6366f1;
+    --accent-soft: #eef2ff;
+    --danger: #ef4444;
+}
+
+/* ================= DARK THEME ================= */
+body.dark{
+    --bg-main: #020617;
+    --bg-card: rgba(255,255,255,0.08);
+    --bg-sidebar: rgba(0,0,0,0.55);
+
+    --text-main: #e5e7eb;
+    --text-muted: #9ca3af;
+
+    --border-soft: rgba(255,255,255,0.15);
+    --shadow-soft: 0 0 25px rgba(0,0,0,0.6);
+}

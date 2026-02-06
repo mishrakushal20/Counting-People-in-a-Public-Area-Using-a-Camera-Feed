@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crowd Density Heatmap</title>
+
+    <!-- SIDEBAR CSS -->
+    <link rel="stylesheet" href="/static/css/theme.css">
+    <link rel="stylesheet" href="/static/css/sidebar.css">
+
+   <style>
+    body{
+        margin:0;
+        font-family: Arial;
+        background: var(--bg-main);
+        color: var(--text-main);
+        transition: background .3s ease, color .3s ease;
+    }
+
+    /* MAIN CONTENT (important for sidebar spacing) */
+    .main-content{
+        margin-left:250px;
+        padding:20px;
+    }
+
+    h2{
+        text-align:center;
+        padding:15px;
+        font-weight:600;
+        color: var(--text-main);
+    }
+
+    .grid{
+        display:grid;
+        grid-template-columns: repeat(8, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        gap:10px;
+        width:92%;
+        height:70vh;
+        margin:auto;
+        background: var(--bg-card);
+        padding:12px;
+        border-radius:16px;
+        border:1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .cell{
+        border-radius:14px;
+        transition: background-color 0.5s ease;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
+    }
+
+    .legend{
+        display:flex;
+        justify-content:center;
+        gap:25px;
+        margin:20px;
+        font-weight:500;
+        color: var(--text-muted);
+    }
+
+    .box{
+        width:18px;
+        height:18px;
+        border-radius:4px;
+        display:inline-block;
+        margin-right:6px;
+        border:1px solid var(--border-soft);
+    }
+</style>
+
+    </head>
+
+<body>
+
+<!-- ✅ SIDEBAR (COMMON) -->
+{% include "sidebar.html" %}
+
+<!-- ✅ MAIN CONTENT -->
+<div class="main-content">
+
+    <h2>Live Crowd Density Heatmap</h2>
+
+    <div class="grid" id="heatmapGrid"></div>
+
+    <div class="legend">
+        <span><span class="box" style="background:#4caf50"></span>Low</span>
+        <span><span class="box" style="background:#ffeb3b"></span>Low–Medium</span>
+        <span><span class="box" style="background:#ff9800"></span>Medium</span>
+        <span><span class="box" style="background:#f44336"></span>High</span>
+    </div>
+
+</div>
+
+<script src="/static/js/heatmap.js"></script>
+<script src="/static/js/route-guard.js"></script>
+<script>
+    console.log("Heatmap route guard running");
+    requireAuth();
+</script>
+
+</body>
+</html>

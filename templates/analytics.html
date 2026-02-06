@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crowd Analytics | Smart Monitoring</title>
+
+    <!-- COMMON CSS -->
+    <link rel="stylesheet" href="/static/css/theme.css">
+    <link rel="stylesheet" href="/static/css/sidebar.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+    font-family: Arial;
+    margin:0;
+    background: var(--bg-main);
+    color: var(--text-main);
+}
+
+/* MAIN CONTENT */
+.main-content{
+    margin-left:250px;
+    padding:18px;
+}
+
+.topbar{
+    font-size:22px;
+    font-weight:bold;
+    margin-bottom:16px;
+}
+
+/* CARDS */
+.analytics-cards{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-bottom:22px;
+}
+
+.card{
+    background: var(--bg-card);
+    border:1px solid var(--border-soft);
+    box-shadow: var(--shadow-soft);
+    padding:20px;
+    border-radius:15px;
+    min-width:220px;
+}
+
+.card h3{
+    margin:0;
+    font-size:15px;
+    opacity:.8;
+}
+
+.card p{
+    font-size:26px;
+    font-weight:bold;
+    margin-top:8px;
+}
+
+/* STATUS COLORS */
+.green{ border-left:6px solid #16a34a; }
+.yellow{ border-left:6px solid #ca8a04; }
+.red{ border-left:6px solid #dc2626; }
+
+/* CHART BOX */
+.chart-box{
+    background: var(--bg-card);
+    border:1px solid var(--border-soft);
+    box-shadow: var(--shadow-soft);
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:22px;
+}
+
+.chart-title{
+    font-weight:bold;
+    margin-bottom:10px;
+}
+</style>
+</head>
+
+<body id="themeBody">
+
+<!-- ✅ SIDEBAR -->
+{% include "sidebar.html" %}
+
+<!-- ✅ MAIN -->
+<div class="main-content">
+
+    <div class="topbar">📊 Crowd Analytics</div>
+
+    <!-- ANALYTICS CARDS -->
+    <div class="analytics-cards">
+
+        <div class="card green">
+            <h3>Peak Crowd Today</h3>
+            <p id="peakCrowd">68</p>
+        </div>
+
+        <div class="card yellow">
+            <h3>Average Crowd</h3>
+            <p id="avgCrowd">34</p>
+        </div>
+
+        <div class="card red">
+            <h3>Alerts Triggered</h3>
+            <p id="alertCount">3</p>
+        </div>
+
+    </div>
+
+    <!-- HOURLY CROWD CHART -->
+    <div class="chart-box">
+        <div class="chart-title">Hourly Crowd Trend</div>
+        <canvas id="hourlyChart"></canvas>
+    </div>
+
+    <!-- ZONE WISE CHART -->
+    <div class="chart-box">
+        <div class="chart-title">Zone-wise Crowd Distribution</div>
+        <canvas id="zoneChart"></canvas>
+    </div>
+
+</div>
+
+<script>
+/* ===============================
+   CHART INITIALIZATION
+================================ */
+
+window.hourlyChart = new Chart(
+    document.getElementById("hourlyChart"),
+    {
+        type: "line",
+        data: {
+            labels: ["9AM","10AM","11AM","12PM","1PM","2PM","3PM"],
+            datasets: [{
+                label: "People Count",
+                data: [0,0,0,0,0,0,0],
+                borderWidth: 3,
+                tension: 0.4
+            }]
+        },
+        options:{
+            responsive:true,
+            plugins:{ legend:{ display:false } }
+        }
+    }
+);
+
+window.zoneChart = new Chart(
+    document.getElementById("zoneChart"),
+    {
+        type: "bar",
+        data: {
+            labels: ["Gate A","Hall","Corridor","Exit"],
+            datasets: [{
+                label: "Avg Crowd",
+                data: [0,0,0,0]
+            }]
+        },
+        options:{
+            responsive:true,
+            plugins:{ legend:{ display:false } }
+        }
+    }
+);
+
+
+
+/* ===============================
+   LOAD ANALYTICS FROM BACKEND
+================================ */
+
+async function loadAnalytics(){
+    try{
+        const res = await fetch("/analytics-data");
+        const data = await res.json();
+
+        // 🔢 Update cards
+        document.getElementById("peakCrowd").innerText = data.peak;
+        document.getElementById("avgCrowd").innerText = data.average;
+        document.getElementById("alertCount").innerText = data.alerts;
+
+        // 📈 Update hourly chart
+        window.hourlyChart.data.datasets[0].data = data.hourly;
+        window.hourlyChart.update();
+
+        // 📊 Update zone chart
+        window.zoneChart.data.datasets[0].data = Object.values(data.zones);
+        window.zoneChart.update();
+
+    }catch(err){
+        console.error("Failed to load analytics", err);
+    }
+}
+
+// first load
+loadAnalytics();
+
+// auto refresh every 3 sec
+setInterval(loadAnalytics, 3000);
+</script>
+
+
+<!-- AUTH GUARD -->
+<script src="/static/js/route-guard.js"></script>
+<script>
+    console.log("Analytics route guard running");
+    requireAuth();
+</script>
+<script src="analytics.js"></script>
+
+
+</body>
+</html>
+

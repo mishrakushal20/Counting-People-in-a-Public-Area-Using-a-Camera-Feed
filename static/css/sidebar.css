@@ -1,0 +1,112 @@
+/* ================= SIDEBAR ================= */
+.sidebar{
+    width:230px;
+    height:100vh;
+    position:fixed;
+    left:0;
+    top:0;
+    background:rgba(0,0,0,0.55);
+    backdrop-filter:blur(15px);
+    border-right:2px solid rgba(255,255,255,0.1);
+    box-shadow:0 0 25px rgba(0,0,0,0.6);
+    padding:15px;
+    z-index:5;
+
+    display:flex;
+    flex-direction:column;
+}
+
+/* ================= LOGO ================= */
+.logo{
+    font-size:20px;
+    font-weight:bold;
+    color:white;
+    padding:10px;
+    border-radius:10px;
+    text-align:center;
+    background:linear-gradient(45deg,#22c55e,#4ade80);
+    margin-bottom:15px;
+}
+
+/* ================= MENU ITEMS ================= */
+.menu-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:10px;
+    padding:10px 12px;
+    border-radius:10px;
+    color:white;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s ease;
+    text-decoration:none;
+    width:100%;
+}
+
+.menu-item:hover{
+    background:#2563eb;
+    transform:translateX(6px);
+}
+
+.menu-item.active{
+    background:#22c55e;
+    color:black;
+}
+
+/* ================= BOTTOM ACTIONS ================= */
+.sidebar-actions{
+    margin-top:auto;
+    padding-bottom:25px;
+    margin-bottom:80px;   
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+/* COMMON STYLE FOR THEME + LOGOUT */
+.sidebar-actions button{
+    width:100%;
+    padding:12px;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    border:none;
+    transition:background 0.25s ease, transform 0.15s ease;
+}
+
+/* ================= THEME BUTTON ================= */
+.theme-btn{
+    background:linear-gradient(45deg,#6366f1,#9333ea);
+    color:white;
+}
+
+.theme-btn:hover{
+    opacity:0.92;
+}
+
+/* ================= LOGOUT BUTTON ================= */
+.logout-btn{
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.25);
+    color:white;
+}
+
+.logout-btn:hover{
+    background:rgba(239,68,68,0.22);
+    border-color:rgba(239,68,68,0.6);
+}
+
+.logout-btn:active{
+    transform:scale(0.97);
+}
+
+/* PREVENT ICON TEXT SHIFT */
+.logout-btn span{
+    pointer-events:none;
+}
+
+/* ================= END SIDEBAR ================= */
+
